@@ -1,0 +1,57 @@
+import nltk
+from nltk.stem import WordNetLemmatizer
+import random
+import json
+
+# Initialize lemmatizer
+lemmatizer = WordNetLemmatizer()
+
+# Sample intents
+intents = {
+    "greetings": {
+        "patterns": ["hello", "hi", "hey", "good morning", "good evening"],
+        "responses": ["Hello!", "Hi there!", "Hey!", "Hi, how can I help you?"]
+    },
+    "goodbye": {
+        "patterns": ["bye", "see you", "goodbye", "take care"],
+        "responses": ["Goodbye!", "See you later!", "Take care!", "Bye!"]
+    },
+    "thanks": {
+        "patterns": ["thanks", "thank you", "much appreciated"],
+        "responses": ["You're welcome!", "No problem!", "Anytime!"]
+    },
+    "about": {
+        "patterns": ["who are you", "what are you", "tell me about yourself"],
+        "responses": ["I'm a simple chatbot created with Python and NLTK."]
+    },
+    "help": {
+        "patterns": ["help", "support", "can you help me"],
+        "responses": ["Sure! How can I help you today?", "I’m here to help!"]
+    }
+}
+
+# Preprocess the input
+def preprocess(sentence):
+    tokens = nltk.word_tokenize(sentence.lower())
+    return [lemmatizer.lemmatize(token) for token in tokens]
+
+# Match intent
+def match_intent(user_input):
+    user_words = preprocess(user_input)
+    for intent, data in intents.items():
+        for pattern in data["patterns"]:
+            pattern_words = preprocess(pattern)
+            if any(word in user_words for word in pattern_words):
+                return random.choice(data["responses"])
+    return "I'm not sure how to respond to that."
+
+# Chat loop
+print("🤖 Chatbot: Hello! Type 'quit' to exit.")
+while True:
+    user_input = input("You: ")
+    if user_input.lower() in ['quit', 'exit', 'bye']:
+        print("🤖 Chatbot: Goodbye!")
+        break
+    response = match_intent(user_input)
+    print("🤖 Chatbot:", response)
+
