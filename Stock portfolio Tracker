@@ -1,0 +1,68 @@
+import yfinance as yf
+
+# Portfolio stored as a dictionary: {ticker: number_of_shares}
+portfolio = {}
+
+def add_stock(ticker, shares):
+    ticker = ticker.upper()
+    if ticker in portfolio:
+        portfolio[ticker] += shares
+    else:
+        portfolio[ticker] = shares
+    print(f"✅ Added {shares} shares of {ticker}.")
+
+def remove_stock(ticker):
+    ticker = ticker.upper()
+    if ticker in portfolio:
+        del portfolio[ticker]
+        print(f"❌ Removed {ticker} from portfolio.")
+    else:
+        print(f"⚠️ Stock {ticker} not in portfolio.")
+
+def show_portfolio():
+    if not portfolio:
+        print("📭 Portfolio is empty.")
+        return
+
+    total_value = 0
+    print("\n📈 Portfolio Summary:")
+    print(f"{'Ticker':<10}{'Shares':<10}{'Price':<10}{'Value':<10}")
+    print("-" * 40)
+
+    for ticker, shares in portfolio.items():
+        stock = yf.Ticker(ticker)
+        data = stock.history(period="1d")
+        if data.empty:
+            print(f"{ticker:<10}{shares:<10}{'N/A':<10}{'N/A':<10}")
+            continue
+        price = data["Close"].iloc[-1]
+        value = price * shares
+        total_value += value
+        print(f"{ticker:<10}{shares:<10}{price:<10.2f}{value:<10.2f}")
+
+    print("-" * 40)
+    print(f"{'Total Value':<30}${total_value:.2f}\n")
+
+def main():
+    print("📊 Welcome to Stock Portfolio Tracker")
+    while True:
+        print("\nOptions: add | remove | show | quit")
+        command = input("Enter command: ").lower()
+
+        if command == 'add':
+            ticker = input("Enter stock ticker: ").strip()
+            shares = int(input("Enter number of shares: "))
+            add_stock(ticker, shares)
+        elif command == 'remove':
+            ticker = input("Enter stock ticker to remove: ").strip()
+            remove_stock(ticker)
+        elif command == 'show':
+            show_portfolio()
+        elif command == 'quit':
+            print("👋 Exiting portfolio tracker. Goodbye!")
+            break
+        else:
+            print("❓ Invalid command.")
+
+if __name__ == "__main__":
+    main()
